@@ -1,6 +1,7 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import com.gengyun.server.ByteSerializer;
+import com.gengyun.server.HandShaker;
+
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -19,13 +20,21 @@ public class SocketClient {
             socket.setSoTimeout(60000);
 
             /** 发送客户端准备传输的信息 */
-            // 由Socket对象得到输出流，并构造PrintWriter对象
+            /*// 由Socket对象得到输出流，并构造PrintWriter对象
             PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
             // 将输入读入的字符串输出到Server
-            BufferedReader sysBuff = new BufferedReader(new InputStreamReader(System.in));
+
+            InputStream in = new ByteArrayInputStream(ByteSerializer.serialize(handShaker));
+            BufferedReader sysBuff = new BufferedReader(new InputStreamReader(in));
             printWriter.println(sysBuff.readLine());
             // 刷新输出流，使Server马上收到该字符串
-            printWriter.flush();
+            printWriter.flush();*/
+
+            HandShaker handShaker = new HandShaker();
+            handShaker.setUsername("duocai");
+            handShaker.setPassword("123456");
+            OutputStream outputStream = socket.getOutputStream();
+//            outputStream  = new ObjectOutputStream(handShaker);
 
             /** 用于获取服务端传输来的信息 */
             // 由Socket对象得到输入流，并构造相应的BufferedReader对象
@@ -35,7 +44,7 @@ public class SocketClient {
             System.out.println("Server say : " + result);
 
             /** 关闭Socket*/
-            printWriter.close();
+//            printWriter.close();
             bufferedReader.close();
             socket.close();
         } catch (Exception e) {
