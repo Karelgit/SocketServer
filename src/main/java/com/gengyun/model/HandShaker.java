@@ -1,4 +1,4 @@
-package com.gengyun.server;
+package com.gengyun.model;
 
 import java.io.Serializable;
 import java.net.Socket;
