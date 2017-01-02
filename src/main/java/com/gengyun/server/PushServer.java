@@ -2,8 +2,11 @@ package com.gengyun.server;
 
 import com.alibaba.fastjson.JSON;
 import com.gengyun.model.HandShaker;
+import com.gengyun.model.PushInfo;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -48,17 +51,24 @@ public class PushServer extends ServerSocket {
             HandShaker handShaker = null;
             try {
                 ObjectInputStream in = new ObjectInputStream(client.getInputStream());
-                ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
-                handShaker = ((HandShaker)in.readObject());
-                handShaker.setClientSocket(client);
-                //把用户名密码和socket的握手信息存入客户消息List中
-                clientList.add(handShaker);
+                if(in.readObject() instanceof HandShaker)   {
+                    System.out.println("是HandShaker");
+
+                    handShaker = ((HandShaker)in.readObject());
+                    handShaker.setClientSocket(client);
+                    //把用户名密码和socket的握手信息存入客户消息List中
+                    clientList.add(handShaker);
+                    System.out.println("获得客户端的handShaker信息：" + JSON.toJSONString(handShaker));
+                    in.close();
+                }else {
+                    System.out.println("发送推送请求");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            System.out.println("获得客户端的handShaker信息：" + JSON.toJSONString(handShaker));
+
         }
     }
 
@@ -66,7 +76,7 @@ public class PushServer extends ServerSocket {
     class ConnWatchDog implements Runnable{
         public void run(){
             try {
-                ServerSocket ss = new ServerSocket(SERVER_PORT);
+                ServerSocket ss = new ServerSocket(SERVER_PORT,5);
                 while(running){
                     Socket s = ss.accept();
                     new Thread(new SocketAction(s)).start();
@@ -109,18 +119,12 @@ public class PushServer extends ServerSocket {
         }
     }
 
-    class NewsPusher implements Runnable{
-
-
-        public void run() {
-
-        }
-    }
     public void stop()  {
         connWatchDog.stop();
     }
 
     public static void main(String[] args) throws IOException {
         new PushServer();
+
     }
 }

@@ -3,11 +3,12 @@ package com.gengyun.client;
 import com.alibaba.fastjson.JSON;
 import com.gengyun.model.HandShaker;
 import com.gengyun.model.KeepAlive;
-import com.gengyun.model.PushINfo;
+import com.gengyun.model.PushInfo;
 
-import javax.xml.bind.SchemaOutputResolver;
 import java.io.*;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author： Huanghai
  * @Version: 2016-12-27
  **/
-public class SocketClient {
+public class SocketClient{
     private static String SERVER_IP;
     private static int SERVER_PORT;
     private Socket socket;
@@ -29,6 +30,7 @@ public class SocketClient {
         this.SERVER_IP = SERVER_IP;
         this.SERVER_PORT = SERVER_PORT;
     }
+
 
     /**
      * 处理服务端发回的对象，可实现该接口。
@@ -63,7 +65,7 @@ public class SocketClient {
 
         lastSendTime = System.currentTimeMillis();
         running = true;
-        new Thread(new KeepAliveWatchDog()).start();
+//        new Thread(new KeepAliveWatchDog()).start();
         new Thread(new ReceiveWatchDog()).start();
     }
 
@@ -76,6 +78,7 @@ public class SocketClient {
         oos.writeObject(obj);
         System.out.println("发送：\t"+obj);
         oos.flush();
+        oos.close();
     }
 
     class KeepAliveWatchDog implements Runnable{
@@ -85,7 +88,7 @@ public class SocketClient {
             while(running){
                 if(System.currentTimeMillis()-lastSendTime>keepAliveDelay){
                     try {
-                        SocketClient.this.sendObject(new KeepAlive());
+                        SocketClient.this.sendObject(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())+"\t维持连接包");
                     } catch (IOException e) {
                         e.printStackTrace();
                         SocketClient.this.stop();
@@ -110,8 +113,8 @@ public class SocketClient {
                     InputStream in = socket.getInputStream();
                     if(in.available()>0){
                         ObjectInputStream ois = new ObjectInputStream(in);
-                        PushINfo pushINfo = ((PushINfo) ois.readObject());
-                        System.out.println("接收：\t"+JSON.toJSONString(pushINfo));
+                        PushInfo pushInfo = ((PushInfo) ois.readObject());
+                        System.out.println("接收：\t"+JSON.toJSONString(pushInfo));
                     }else{
                         Thread.sleep(10);
                     }

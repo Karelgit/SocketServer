@@ -1,12 +1,14 @@
 package com.gengyun.model;
 
+import java.io.Serializable;
+
 /**
  * <类详细说明>
  *
  * @Author： HuangHai
  * @Version: 2016-12-30
  **/
-public class PushINfo {
+public class PushInfo implements Serializable{
     private String userName;
     private String password;
     private String initEditor;
