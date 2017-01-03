@@ -15,7 +15,7 @@ public class testPushNews {
         PushInfo pushInfo = new PushInfo();
         pushInfo.setUserName("duocai");
         pushInfo.setPassword("123456");
-        pushInfo.setInitEditor("我是大黄海的新闻！");
+        pushInfo.setInitEditor("contetn:黔东南州举行龙舟比赛！");
 
         //链接到服务器
         try {

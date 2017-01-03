@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Server {
 
     private List<HandShaker> handShakerList = new ArrayList<HandShaker>();
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
+
 
     /**
      * 要处理客户端发来的对象，并返回一个对象，可实现该接口。
@@ -73,7 +75,17 @@ public class Server {
         }
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
+        int port = Integer.parseInt(resourceBundle.getString("SERVER_PORT"));
+        Server server = new Server(port);
+        server.start();
+    }*/
+
+    /**
+     * 启动serverSocket新闻推送服务
+     */
+    public void startPushServer() {
         ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
         int port = Integer.parseInt(resourceBundle.getString("SERVER_PORT"));
         Server server = new Server(port);
@@ -206,7 +218,7 @@ public class Server {
     }
 
     /**
-     *
+     * MRP推送信息转换PushInfo
      * @param articlesJSON
      * @Param userJSON
      *
@@ -231,10 +243,15 @@ public class Server {
         return  pushInfo;
     }
 
+    /**
+     * 推送新闻列表
+     * @param articlesJSON
+     * @param userJSON
+     */
     public void exportNews(String articlesJSON,String userJSON){
         final  PushInfo pushInfo = convertToPushInfo(articlesJSON,userJSON);
         try {
-            Socket socket = new Socket("127.0.0.1",65432);
+            Socket socket = new Socket(resourceBundle.getString("SERVER_IP"),Integer.parseInt(resourceBundle.getString("SERVER_PORT")));
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
             oos.writeObject(pushInfo);
             System.out.println("发送：\t"+pushInfo);
