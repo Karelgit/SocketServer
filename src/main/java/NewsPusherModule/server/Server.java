@@ -85,11 +85,17 @@ public class Server {
     /**
      * 启动serverSocket新闻推送服务
      */
-    public void startPushServer() {
+    public boolean startPushServer() {
         ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
         int port = Integer.parseInt(resourceBundle.getString("SERVER_PORT"));
         Server server = new Server(port);
-        server.start();
+        try {
+            server.start();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private int port;
@@ -107,6 +113,7 @@ public class Server {
         running = true;
         connWatchDog = new Thread(new ConnWatchDog());
         connWatchDog.start();
+
     }
 
     @SuppressWarnings("deprecation")
@@ -248,7 +255,7 @@ public class Server {
      * @param articlesJSON
      * @param userJSON
      */
-    public void exportNews(String articlesJSON,String userJSON){
+    public boolean exportNews(String articlesJSON,String userJSON){
         final  PushInfo pushInfo = convertToPushInfo(articlesJSON,userJSON);
         try {
             Socket socket = new Socket(resourceBundle.getString("SERVER_IP"),Integer.parseInt(resourceBundle.getString("SERVER_PORT")));
@@ -257,8 +264,10 @@ public class Server {
             System.out.println("发送：\t"+pushInfo);
             oos.flush();
             socket.close();
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
     }
 

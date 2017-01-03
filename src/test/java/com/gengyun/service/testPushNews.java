@@ -1,5 +1,6 @@
-import NewsPusherModule.entity.PushInfo;
+package com.gengyun.service;
 
+import NewsPusherModule.entity.PushInfo;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -14,13 +15,14 @@ import java.net.Socket;
 public class testPushNews {
     public static void main(String[] args) {
         PushInfo pushInfo = new PushInfo();
-        pushInfo.setUserName("duocai");
-        pushInfo.setPassword("123456");
+        pushInfo.setUserName("zhangchao001");
+        pushInfo.setPassword("1234567;");
         pushInfo.setInitEditor("contetn:黔东南州举行龙舟比赛！");
+        pushInfo.setArticlesJSON("articleJson");
 
         //链接到服务器
         try {
-            Socket socket = new Socket("127.0.0.1",65431);
+            Socket socket = new Socket("127.0.0.1",65432);
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
             oos.writeObject(pushInfo);
             System.out.println("发送：\t"+pushInfo);

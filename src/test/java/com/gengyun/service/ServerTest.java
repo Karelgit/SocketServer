@@ -1,3 +1,5 @@
+package com.gengyun.service;
+
 import NewsPusherModule.server.Server;
 
 /**
@@ -9,7 +11,7 @@ import NewsPusherModule.server.Server;
 public class ServerTest {
 
     public static void main(String[] args) {
-        Server server =new Server(65431);
-        server.startPushServer();
+        Server server =new Server(65432);
+        System.out.println(server.startPushServer());
     }
 }
