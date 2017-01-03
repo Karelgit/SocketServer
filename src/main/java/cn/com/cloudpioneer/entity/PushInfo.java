@@ -1,4 +1,4 @@
-package com.gengyun.model;
+package cn.com.cloudpioneer.entity;
 
 import java.io.Serializable;
 
@@ -12,6 +12,24 @@ public class PushInfo implements Serializable{
     private String userName;
     private String password;
     private String initEditor;
+    private String articlesJSON;
+    private String customerInfoJSON;
+
+    public String getCustomerInfoJSON() {
+        return customerInfoJSON;
+    }
+
+    public void setCustomerInfoJSON(String customerInfoJSON) {
+        this.customerInfoJSON = customerInfoJSON;
+    }
+
+    public String getArticlesJSON() {
+        return articlesJSON;
+    }
+
+    public void setArticlesJSON(String articlesJSON) {
+        this.articlesJSON = articlesJSON;
+    }
 
     public String getUserName() {
         return userName;

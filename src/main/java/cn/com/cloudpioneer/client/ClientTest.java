@@ -1,9 +1,9 @@
-package com.gengyun.client;
+package cn.com.cloudpioneer.client;
 
+import cn.com.cloudpioneer.entity.HandShaker;
+import cn.com.cloudpioneer.entity.KeepAlive;
+import cn.com.cloudpioneer.entity.PushInfo;
 import com.alibaba.fastjson.JSON;
-import com.gengyun.model.HandShaker;
-import com.gengyun.model.KeepAlive;
-import com.gengyun.model.PushInfo;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author HouLei
  * @since 1.0
  */
-public class Client {
+public class ClientTest {
     private List<HandShaker> handShakerList = new ArrayList<HandShaker>();
 
 
@@ -31,10 +31,10 @@ public class Client {
      * 处理服务端发回的对象，可实现该接口。
      */
     public static interface ObjectAction{
-        void doAction(Object obj,Client client);
+        void doAction(Object obj, ClientTest client);
     }
     public static final class DefaultObjectAction implements ObjectAction{
-        public void doAction(Object obj,Client client) {
+        public void doAction(Object obj,ClientTest client) {
             System.out.println("处理：\t"+obj.toString());
         }
     }
@@ -46,7 +46,7 @@ public class Client {
 //            this.socket = socket;
 //            this.handShakerList = handShakerList;
 //        }
-        public void doAction(Object obj,Client client) {
+        public void doAction(Object obj,ClientTest client) {
             HandShaker handShaker = ((HandShaker) obj);
             handShaker.setClientSocket(socket);
             handShakerList.add(handShaker);
@@ -55,11 +55,12 @@ public class Client {
 
     }
 
+
     public static void main(String[] args) throws UnknownHostException, IOException {
         ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
         String serverIp = resourceBundle.getString("SERVER_IP");
         int port = Integer.parseInt(resourceBundle.getString("SERVER_PORT"));
-        Client client = new Client(serverIp,port);
+        ClientTest client = new ClientTest(serverIp,port);
         client.addActionMap(Object.class,new HandShakerObjectAction());
         client.start();
     }
@@ -71,7 +72,7 @@ public class Client {
     private long lastSendTime;
     private ConcurrentHashMap<Class, ObjectAction> actionMapping = new ConcurrentHashMap<Class,ObjectAction>();
 
-    public Client(String serverIp, int port) {
+    public ClientTest(String serverIp, int port) {
         this.serverIp=serverIp;this.port=port;
     }
 
@@ -111,7 +112,7 @@ public class Client {
         public void run() {
             //客户端发送HanndShaker信息，包括用户名，密码
             HandShaker handShaker = new HandShaker();
-            handShaker.setUsername("duocai");
+            handShaker.setUsername("karel");
             handShaker.setPassword("123456");
             System.out.println("客户端发送handShaker信息是：\t"+ JSON.toJSONString(handShaker));
             try {
@@ -130,12 +131,10 @@ public class Client {
             while(running){
                 if(System.currentTimeMillis()-lastSendTime>keepAliveDelay){
                     try {
-                        Client.this.sendObject(new KeepAlive());
+                        ClientTest.this.sendObject(new KeepAlive());
                     } catch (IOException e) {
                         e.printStackTrace();
-                        Client.this.stop();
-                        //启动重连服务端
-
+                        ClientTest.this.stop();
                     }
                     lastSendTime = System.currentTimeMillis();
                 }else{
@@ -143,7 +142,7 @@ public class Client {
                         Thread.sleep(checkDelay);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                        Client.this.stop();
+                        ClientTest.this.stop();
                     }
                 }
             }
@@ -166,17 +165,17 @@ public class Client {
                             Long timeBefore = System.currentTimeMillis();
                             Thread.sleep(10*1000);
                             Long timeAfter = System.currentTimeMillis();
-                            System.out.println("time elaps: " +(timeAfter-timeBefore)/1000+"seconds");
+                            System.out.println("clientTest time elaps: " +(timeAfter-timeBefore)/1000+"seconds");
 
                         }
                         oa = oa==null?new DefaultObjectAction():oa;
-                        oa.doAction(obj, Client.this);
+                        oa.doAction(obj, ClientTest.this);
                     }else{
                         Thread.sleep(10);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Client.this.stop();
+                    ClientTest.this.stop();
                 }
             }
         }
