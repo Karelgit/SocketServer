@@ -1,7 +1,7 @@
-package cn.com.cloudpioneer.server;
+package NewsPusherModule.server;
 
-import cn.com.cloudpioneer.entity.HandShaker;
-import cn.com.cloudpioneer.entity.PushInfo;
+import NewsPusherModule.entity.HandShaker;
+import NewsPusherModule.entity.PushInfo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 

@@ -1,4 +1,4 @@
-import cn.com.cloudpioneer.entity.PushInfo;
+import NewsPusherModule.entity.PushInfo;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -10,6 +10,7 @@ import java.net.Socket;
  * @Author: Huanghai
  * @Version: 2016/12/30
  **/
+
 public class testPushNews {
     public static void main(String[] args) {
         PushInfo pushInfo = new PushInfo();

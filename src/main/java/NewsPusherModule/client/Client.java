@@ -1,8 +1,8 @@
-package cn.com.cloudpioneer.client;
+package NewsPusherModule.client;
 
-import cn.com.cloudpioneer.entity.HandShaker;
-import cn.com.cloudpioneer.entity.KeepAlive;
-import cn.com.cloudpioneer.entity.PushInfo;
+import NewsPusherModule.entity.HandShaker;
+import NewsPusherModule.entity.KeepAlive;
+import NewsPusherModule.entity.PushInfo;
 import com.alibaba.fastjson.JSON;
 
 import java.io.IOException;

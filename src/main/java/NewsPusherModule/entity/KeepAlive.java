@@ -1,4 +1,4 @@
-package cn.com.cloudpioneer.entity;
+package NewsPusherModule.entity;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
