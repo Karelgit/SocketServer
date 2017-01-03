@@ -1,9 +1,9 @@
-package com.gengyun.client;
+package cn.com.cloudpioneer.client;
 
+import cn.com.cloudpioneer.entity.HandShaker;
+import cn.com.cloudpioneer.entity.KeepAlive;
+import cn.com.cloudpioneer.entity.PushInfo;
 import com.alibaba.fastjson.JSON;
-import com.gengyun.model.HandShaker;
-import com.gengyun.model.KeepAlive;
-import com.gengyun.model.PushInfo;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +24,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0
  */
 public class Client {
-    private List<HandShaker> handShakerList = new ArrayList<HandShaker>();
-
+    public static void main(String[] args) throws UnknownHostException, IOException {
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
+        String serverIp = resourceBundle.getString("SERVER_IP");
+        int port = Integer.parseInt(resourceBundle.getString("SERVER_PORT"));
+        Client client = new Client(serverIp,port);
+        client.addActionMap(Object.class,new HandShakerObjectAction());
+        client.start();
+    }
 
     /**
      * 处理服务端发回的对象，可实现该接口。
@@ -37,11 +43,12 @@ public class Client {
         public void doAction(Object obj,Client client) {
             System.out.println("处理：\t"+obj.toString());
         }
-    }
 
+    }
     public static final class HandShakerObjectAction implements ObjectAction {
         private Socket socket;
         private List<HandShaker> handShakerList = new ArrayList<HandShaker>();
+
 //        public HandShakerObjectAction(Socket socket,ArrayList<HandShaker> handShakerList)    {
 //            this.socket = socket;
 //            this.handShakerList = handShakerList;
@@ -53,15 +60,6 @@ public class Client {
             System.out.println("客户端获得handShaker的列表"+JSON.toJSONString(handShakerList));
         }
 
-    }
-
-    public static void main(String[] args) throws UnknownHostException, IOException {
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
-        String serverIp = resourceBundle.getString("SERVER_IP");
-        int port = Integer.parseInt(resourceBundle.getString("SERVER_PORT"));
-        Client client = new Client(serverIp,port);
-        client.addActionMap(Object.class,new HandShakerObjectAction());
-        client.start();
     }
 
     private String serverIp;
@@ -135,6 +133,7 @@ public class Client {
                         e.printStackTrace();
                         Client.this.stop();
                         //启动重连服务端
+                        new Thread(new ReconnectSocket()).start();
 
                     }
                     lastSendTime = System.currentTimeMillis();
@@ -178,6 +177,21 @@ public class Client {
                     e.printStackTrace();
                     Client.this.stop();
                 }
+            }
+        }
+    }
+
+    class ReconnectSocket implements Runnable    {
+        public void run() {
+            ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
+            String serverIp = resourceBundle.getString("SERVER_IP");
+            int port = Integer.parseInt(resourceBundle.getString("SERVER_PORT"));
+            Client client = new Client(serverIp,port);
+            client.addActionMap(Object.class,new HandShakerObjectAction());
+            try {
+                client.start();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

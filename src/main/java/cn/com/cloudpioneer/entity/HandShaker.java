@@ -1,4 +1,4 @@
-package com.gengyun.model;
+package cn.com.cloudpioneer.entity;
 
 import java.io.Serializable;
 import java.net.Socket;
