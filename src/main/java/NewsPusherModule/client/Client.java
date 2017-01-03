@@ -3,12 +3,10 @@ package NewsPusherModule.client;
 import NewsPusherModule.entity.HandShaker;
 import NewsPusherModule.entity.KeepAlive;
 import NewsPusherModule.entity.PushInfo;
+import NewsPusherModule.util.FileWriterUtil;
 import com.alibaba.fastjson.JSON;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -33,6 +31,8 @@ public class Client {
         client.start();
     }
 
+    private static BufferedWriter bufferedWriter;
+
     /**
      * 处理服务端发回的对象，可实现该接口。
      */
@@ -41,7 +41,13 @@ public class Client {
     }
     public static final class DefaultObjectAction implements ObjectAction{
         public void doAction(Object obj,Client client) {
-            System.out.println("处理：\t"+obj.toString());
+            try {
+                //搜集日志
+
+                FileWriterUtil.writeLog("客户端处理：\t"+obj.toString()+"\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -157,7 +163,8 @@ public class Client {
                     if(in.available()>0){
                         ObjectInputStream ois = new ObjectInputStream(in);
                         Object obj = ois.readObject();
-                        System.out.println("接收：\t"+obj);
+                        //搜集日志
+                        FileWriterUtil.writeLog("客户端接收：\t"+obj+"\n");
                         ObjectAction oa = actionMapping.get(obj.getClass());
                         if(obj instanceof PushInfo) {
                             //加入推送逻辑
