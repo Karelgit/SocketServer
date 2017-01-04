@@ -8,7 +8,8 @@ import java.io.Serializable;
  * @Author： HuangHai
  * @Version: 2016-12-30
  **/
-public class PushInfo implements Serializable{
+public class PushInfo implements Serializable   {
+    private String companyId;
     private String userName;
     private String password;
     private String initEditor;
@@ -53,5 +54,13 @@ public class PushInfo implements Serializable{
 
     public void setInitEditor(String initEditor) {
         this.initEditor = initEditor;
+    }
+
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
     }
 }

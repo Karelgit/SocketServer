@@ -66,7 +66,7 @@ public class Server {
             //通过pushInfo里面客户信息和handShaker比对，拿到对应的客户端的socket
             Socket socket = null;
             for (HandShaker handShaker : handShakerList) {
-                if(handShaker.getUsername().equals(pushInfo.getUserName())) {
+                if(handShaker.getCompanyId().equals(pushInfo.getCompanyId())) {
                      socket= handShaker.getClientSocket();
                 }
             }

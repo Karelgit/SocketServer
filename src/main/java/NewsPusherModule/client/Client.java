@@ -115,8 +115,7 @@ public class Client {
         public void run() {
             //客户端发送HanndShaker信息，包括用户名，密码
             HandShaker handShaker = new HandShaker();
-            handShaker.setUsername("duocai");
-            handShaker.setPassword("123456");
+            handShaker.setCompanyId("001");
             System.out.println("客户端发送handShaker信息是：\t"+ JSON.toJSONString(handShaker));
             try {
                 sendObject(handShaker);
