@@ -5,6 +5,8 @@ import NewsPusherModule.entity.KeepAlive;
 import NewsPusherModule.entity.PushInfo;
 import NewsPusherModule.util.FileWriterUtil;
 import com.alibaba.fastjson.JSON;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
@@ -22,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0
  */
 public class Client {
+
     public static void main(String[] args) throws UnknownHostException, IOException {
         ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
         String serverIp = resourceBundle.getString("SERVER_IP");
@@ -32,6 +35,9 @@ public class Client {
     }
 
     private static BufferedWriter bufferedWriter;
+    private static final Logger LOG = LoggerFactory.getLogger(Client.class);
+    ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
+
 
     /**
      * 处理服务端发回的对象，可实现该接口。
@@ -41,13 +47,7 @@ public class Client {
     }
     public static final class DefaultObjectAction implements ObjectAction{
         public void doAction(Object obj,Client client) {
-            try {
-                //搜集日志
-
-                FileWriterUtil.writeLog("客户端处理：\t"+obj.toString()+"\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            LOG.info("客户端处理：\t"+obj.toString()+"\n");
         }
 
     }
@@ -63,7 +63,7 @@ public class Client {
             HandShaker handShaker = ((HandShaker) obj);
             handShaker.setClientSocket(socket);
             handShakerList.add(handShaker);
-            System.out.println("客户端获得handShaker的列表"+JSON.toJSONString(handShakerList));
+            LOG.info("客户端获得handShaker的列表"+JSON.toJSONString(handShakerList));
         }
 
     }
@@ -82,7 +82,7 @@ public class Client {
     public void start() throws UnknownHostException, IOException {
         if(running)return;
         socket = new Socket(serverIp,port);
-        System.out.println("本地端口："+socket.getLocalPort());
+        LOG.info("本地端口："+socket.getLocalPort());
         lastSendTime=System.currentTimeMillis();
         running=true;
 
@@ -115,20 +115,20 @@ public class Client {
         public void run() {
             //客户端发送HanndShaker信息，包括用户名，密码
             HandShaker handShaker = new HandShaker();
-            handShaker.setCompanyId("001");
-            System.out.println("客户端发送handShaker信息是：\t"+ JSON.toJSONString(handShaker));
+            handShaker.setCompanyId(resourceBundle.getString("companyId"));
+            LOG.info("客户端发送handShaker信息是：\t"+ JSON.toJSONString(handShaker));
             try {
                 sendObject(handShaker);
             } catch (IOException e) {
-                System.out.println("客户端发送handShaker信息时发生错误！");
+                LOG.error("客户端发送handShaker信息时发生错误！");
                 e.printStackTrace();
             }
         }
     }
 
     class KeepAliveWatchDog implements Runnable{
-        long checkDelay = 10;
-        long keepAliveDelay = 2000;
+        long checkDelay = 1000;
+        long keepAliveDelay = 1000*15;
         public void run() {
             while(running){
                 if(System.currentTimeMillis()-lastSendTime>keepAliveDelay){
@@ -163,15 +163,15 @@ public class Client {
                         ObjectInputStream ois = new ObjectInputStream(in);
                         Object obj = ois.readObject();
                         //搜集日志
-                        FileWriterUtil.writeLog("客户端接收：\t"+obj+"\n");
+                        LOG.info("客户端接收：\t"+obj+"\n");
                         ObjectAction oa = actionMapping.get(obj.getClass());
                         if(obj instanceof PushInfo) {
                             //加入推送逻辑
-                            System.out.println("收到的推送新闻的信息："+JSON.toJSONString(obj));
+                            LOG.info("收到的推送新闻的信息："+JSON.toJSONString(obj));
                             Long timeBefore = System.currentTimeMillis();
                             Thread.sleep(10*1000);
                             Long timeAfter = System.currentTimeMillis();
-                            System.out.println("time elaps: " +(timeAfter-timeBefore)/1000+"seconds");
+                            LOG.info("time elaps: " +(timeAfter-timeBefore)/1000+"seconds");
 
                         }
                         oa = oa==null?new DefaultObjectAction():oa;
@@ -189,7 +189,6 @@ public class Client {
 
     class ReconnectSocket implements Runnable    {
         public void run() {
-            ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
             String serverIp = resourceBundle.getString("SERVER_IP");
             int port = Integer.parseInt(resourceBundle.getString("SERVER_PORT"));
             Client client = new Client(serverIp,port);

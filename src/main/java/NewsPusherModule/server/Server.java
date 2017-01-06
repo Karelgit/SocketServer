@@ -4,6 +4,8 @@ import NewsPusherModule.entity.HandShaker;
 import NewsPusherModule.entity.PushInfo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,15 +21,15 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * C/S架构的服务端对象。
  * <p>
- * 创建时间：2010-7-18 上午12:17:37
- * @author HouLei
+ * 创建时间：2017年01月06日22:59:20
+ * @author huanghai
  * @since 1.0
  */
 public class Server {
 
     private List<HandShaker> handShakerList = new ArrayList<HandShaker>();
     private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("conf");
-
+    private static final Logger LOG = LoggerFactory.getLogger(Server.class);
 
     /**
      * 要处理客户端发来的对象，并返回一个对象，可实现该接口。
@@ -38,7 +40,7 @@ public class Server {
 
     public static final class DefaultObjectAction implements ObjectAction {
         public Object doAction(Object rev) {
-            System.out.println("处理并返回：" + rev);
+            LOG.info("处理并返回：" + rev);
             return rev;
         }
     }
@@ -51,7 +53,7 @@ public class Server {
         public Object doAction(Object rev) {
             handShaker = ((HandShaker) rev);
             handShakerList.add(handShaker);
-            System.out.println("服务器获得的handshaker: "+ JSON.toJSONString(handShaker));
+            LOG.info("服务器获得的handshaker: "+ JSON.toJSONString(handShaker));
             return handShaker;
         }
     }
@@ -70,7 +72,7 @@ public class Server {
                      socket= handShaker.getClientSocket();
                 }
             }
-            System.out.println("服务器获得的PushInfo是： "+JSON.toJSONString(pushInfo));
+            LOG.info("服务器获得的PushInfo是： "+JSON.toJSONString(pushInfo));
             return socket;
         }
     }
@@ -100,7 +102,7 @@ public class Server {
 
     private int port;
     private volatile boolean running = false;
-    private long receiveTimeDelay = 3000;
+    private long receiveTimeDelay = 1000*30;
     private ConcurrentHashMap<Class, ObjectAction> actionMapping = new ConcurrentHashMap<Class, ObjectAction>();
     private Thread connWatchDog;
 
@@ -167,7 +169,7 @@ public class Server {
                             ObjectInputStream ois = new ObjectInputStream(in);
                             Object obj = ois.readObject();
                             lastReceiveTime = System.currentTimeMillis();
-                            System.out.println("接收：\t" + obj);
+                            LOG.info("接收：\t" + obj);
                             ObjectAction oa = actionMapping.get(obj.getClass());
 
                             if(oa instanceof HandShakerAction)    {
@@ -219,7 +221,7 @@ public class Server {
                     e.printStackTrace();
                 }
             }
-            System.out.println("关闭：" + s.getRemoteSocketAddress());
+            LOG.info("关闭：" + s.getRemoteSocketAddress());
         }
 
     }
